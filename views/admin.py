@@ -41,5 +41,4 @@ def show():
         if unique_scheduled < total_modules:
             st.error(f"Attention : {total_modules - unique_scheduled} modules n'ont pas pu être placés.")
         else:
-            st.balloons()
             st.success(f"Planification complète réussie ! {rooms_booked} réservations de salles effectuées pour {unique_scheduled} examens.")
