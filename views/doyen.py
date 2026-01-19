@@ -1,10 +1,33 @@
 import streamlit as st
 import pandas as pd
-from database.db_manager import run_query
+from database.db_manager import run_query, set_edt_validation, is_edt_validated
 
 def show():
     st.header("Tableau de Bord Stratégique (Doyen)")
     st.markdown("Vue globale des indicateurs académiques et logistiques.")
+
+    st.warning("Zone de Contrôle")
+    col_v1, col_v2 = st.columns([3, 1])
+    
+    is_published = is_edt_validated()
+    
+    with col_v1:
+        if is_published:
+            st.success("État : PUBLIÉ. Les étudiants et professeurs ont accès aux plannings.")
+        else:
+            st.error("État : BROUILLON. Les plannings sont masqués pour les utilisateurs.")
+            
+    with col_v2:
+        if is_published:
+            if st.button("Retirer la publication", type="secondary"):
+                set_edt_validation(False)
+                st.rerun()
+        else:
+            if st.button("Valider & Publier", type="primary"):
+                set_edt_validation(True)
+                st.rerun()
+    
+    st.markdown("---")
 
     col1, col2, col3, col4 = st.columns(4)
     total_exams = run_query("SELECT COUNT(DISTINCT module_id) FROM examens").iloc[0,0]

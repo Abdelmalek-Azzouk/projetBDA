@@ -50,3 +50,28 @@ def execute_statement(statement, params=()):
         return 0
     finally:
         conn.close()
+        
+def set_edt_validation(is_validated: bool):
+    """Sets the validation status (1 = Published, 0 = Draft)"""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE IF NOT EXISTS system_config (key TEXT PRIMARY KEY, value TEXT)")
+    
+    val = "1" if is_validated else "0"
+    cur.execute("INSERT OR REPLACE INTO system_config (key, value) VALUES ('edt_published', ?)", (val,))
+    conn.commit()
+    conn.close()
+
+def is_edt_validated():
+    """Returns True if EDT is published, False otherwise"""
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("CREATE TABLE IF NOT EXISTS system_config (key TEXT PRIMARY KEY, value TEXT)")
+    
+    cur.execute("SELECT value FROM system_config WHERE key='edt_published'")
+    row = cur.fetchone()
+    conn.close()
+    
+    if row and row[0] == "1":
+        return True
+    return False

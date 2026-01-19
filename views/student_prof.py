@@ -1,8 +1,14 @@
 import streamlit as st
-from database.db_manager import run_query
+from database.db_manager import run_query, is_edt_validated
 
 def show():
-    st.header("Espace Étudiant & Professeur")
+    st.header("📅 Espace Étudiant & Professeur")
+    
+    # CHECK VALIDATION STATUS
+    if not is_edt_validated():
+        st.info("**Les emplois du temps sont en cours d'élaboration.**")
+        st.warning("La consultation sera ouverte une fois les plannings validés par le Doyen.")
+        return
     
     tab1, tab2 = st.tabs(["Étudiant", "Professeur"])
     
@@ -23,7 +29,6 @@ def show():
             """
             df = run_query(sql, (student_id,))
             if not df.empty:
-                df = df.drop_duplicates(subset=["date_examen", "heure_debut", "Module", "Lieu"])
                 st.table(df)
             else:
                 st.warning(f"Aucun résultat trouvé pour l'ID {student_id}.")
@@ -45,7 +50,6 @@ def show():
             """
             df = run_query(sql, (prof_id,))
             if not df.empty:
-                df = df.drop_duplicates(subset=["date_examen", "heure_debut", "Module", "Lieu"])
                 st.table(df)
             else:
                 st.warning(f"Aucun planning trouvé pour l'ID {prof_id}.")
