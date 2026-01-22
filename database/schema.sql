@@ -8,11 +8,49 @@ DROP TABLE IF EXISTS professeurs;
 DROP TABLE IF EXISTS salles;
 DROP TABLE IF EXISTS formations;
 DROP TABLE IF EXISTS departements;
+DROP TABLE IF EXISTS doyens;
+DROP TABLE IF EXISTS gestionnaire;
+
+-- 0. Admin Tables
+
+CREATE TABLE doyens (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom TEXT NOT NULL,
+    role TEXT CHECK(role IN ('Doyen', 'Vice-Doyen')) NOT NULL,
+    username TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL
+);
+
+-- 5 example doyens, 5 vice-doyens, first doyen = doyen/doyenpw
+INSERT INTO doyens (nom, role, username, password) VALUES
+    ('Jean Martin', 'Doyen', 'doyen', 'doyenpw'),
+    ('Paul Dubois', 'Doyen', 'doyen2', 'doyen2pw'),
+    ('Claire Durand', 'Doyen', 'doyen3', 'doyen3pw'),
+    ('Yves Petit', 'Doyen', 'doyen4', 'doyen4pw'),
+    ('Elise Bernard', 'Doyen', 'doyen5', 'doyen5pw'),
+    ('Sophie Lefevre', 'Vice-Doyen', 'vicedoyen1', 'vicedoyen1pw'),
+    ('Antoine Leroy', 'Vice-Doyen', 'vicedoyen2', 'vicedoyen2pw'),
+    ('Marie Simon', 'Vice-Doyen', 'vicedoyen3', 'vicedoyen3pw'),
+    ('Luc Girard', 'Vice-Doyen', 'vicedoyen4', 'vicedoyen4pw'),
+    ('Nathalie Moulin', 'Vice-Doyen', 'vicedoyen5', 'vicedoyen5pw');
+
+CREATE TABLE gestionnaire (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom TEXT NOT NULL,
+    username TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL
+);
+
+-- First gestionnaire is gest/gestpw
+INSERT INTO gestionnaire (nom, username, password) VALUES
+    ('Gestionnaire Principal', 'gest', 'gestpw');
 
 -- 1. Infrastructure
 CREATE TABLE departements (
     id INTEGER PRIMARY KEY,
-    nom TEXT NOT NULL
+    nom TEXT NOT NULL,
+    chefuser TEXT,
+    chefpassword TEXT
 );
 
 CREATE TABLE salles (
@@ -42,6 +80,8 @@ CREATE TABLE professeurs (
     id INTEGER PRIMARY KEY,
     nom TEXT,
     dept_id INTEGER,
+    username TEXT,
+    password TEXT,
     FOREIGN KEY(dept_id) REFERENCES departements(id)
 );
 
@@ -50,7 +90,8 @@ CREATE TABLE etudiants (
     nom TEXT,
     prenom TEXT,
     formation_id INTEGER,
-    promo TEXT, -- e.g., 'L1', 'M1'
+    username TEXT,
+    password TEXT,
     FOREIGN KEY(formation_id) REFERENCES formations(id)
 );
 
@@ -87,3 +128,7 @@ CREATE TABLE surveillances (
 CREATE INDEX idx_insc_module ON inscriptions(module_id);
 CREATE INDEX idx_insc_etud ON inscriptions(etudiant_id);
 CREATE INDEX idx_exam_date ON examens(date_examen);
+
+-- Exemple d'insertion pour chefuser/chefpassword département Informatique :
+-- INSERT INTO departements (id, nom, chefuser, chefpassword) VALUES (1, 'Informatique', 'chef', 'chefpw');
+-- Pour les autres départements, chefuser/chefpassword peuvent être NULL ou quelconques.

@@ -3,15 +3,19 @@ from database.db_manager import run_query
 
 def show():
     st.header("Vue Chef de Département")
-    
-    depts = run_query("SELECT id, nom FROM departements")
-    if depts.empty:
-        st.warning("Aucun département trouvé.")
+
+    user_id = st.session_state.get("user_id", None)
+    if user_id is None:
+        st.error("Utilisateur non identifié.")
         return
 
-    dept_list = depts['nom'].tolist()
-    selected_dept_name = st.selectbox("Sélectionnez votre Département", dept_list)
-    selected_dept_id = depts[depts['nom'] == selected_dept_name]['id'].values[0]
+    dept = run_query(f"SELECT id, nom FROM departements WHERE id = {user_id}")
+    if dept.empty:
+        st.warning("Aucun département correspondant à votre accès n'a été trouvé.")
+        return
+
+    selected_dept_id = dept.iloc[0]['id']
+    selected_dept_name = dept.iloc[0]['nom']
 
     st.markdown(f"### Planning : {selected_dept_name}")
 
@@ -39,7 +43,7 @@ def show():
         st.dataframe(df_sched, use_container_width=True)
     else:
         st.info("Aucun examen planifié pour ce département.")
-        
+
     st.markdown("### Validation")
     comment = st.text_area("Observations sur le planning")
     if st.button("Valider le planning du département"):
