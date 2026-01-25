@@ -43,8 +43,3 @@ def show():
         st.dataframe(df_sched, use_container_width=True)
     else:
         st.info("Aucun examen planifié pour ce département.")
-
-    st.markdown("### Validation")
-    comment = st.text_area("Observations sur le planning")
-    if st.button("Valider le planning du département"):
-        st.success("Observations enregistrées et planning validé.")

@@ -8,15 +8,15 @@ def show():
 
     st.warning("Zone de Contrôle")
     col_v1, col_v2 = st.columns([3, 1])
-    
+
     is_published = is_edt_validated()
-    
+
     with col_v1:
         if is_published:
             st.success("État : PUBLIÉ. Les étudiants et professeurs ont accès aux plannings.")
         else:
             st.error("État : BROUILLON. Les plannings sont masqués pour les utilisateurs.")
-            
+
     with col_v2:
         if is_published:
             if st.button("Retirer la publication", type="secondary"):
@@ -26,7 +26,24 @@ def show():
             if st.button("Valider & Publier", type="primary"):
                 set_edt_validation(True)
                 st.rerun()
-    
+
+    st.markdown("---")
+
+    st.subheader("Observations transmises par les Chefs de Département")
+    chef_msgs_sql = """
+        SELECT cm.sent_at as 'Date',
+               d.nom as 'Département',
+               cm.message as 'Message'
+        FROM chef_messages cm
+        LEFT JOIN departements d ON cm.dept_id = d.id
+        ORDER BY cm.sent_at DESC
+    """
+    chef_msgs_df = run_query(chef_msgs_sql)
+    if not chef_msgs_df.empty:
+        st.dataframe(chef_msgs_df, use_container_width=True)
+    else:
+        st.info("Aucune observation reçue des chefs de département.")
+
     st.markdown("---")
 
     col1, col2, col3, col4 = st.columns(4)
